@@ -59,16 +59,62 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter,
 
 .row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
 
-.btn { background: var(--card); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+/* Button with icon styling */
+.btn {
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .btn:hover { border-color: var(--primary); }
 .btn.primary { background: linear-gradient(180deg, #22c55e, #16a34a); color: #04140b; border: none; font-weight: 600; }
 .btn.primary:disabled { opacity: .6; cursor: not-allowed; }
 .btn.secondary { background: var(--card); }
 
-.icon { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; cursor: pointer; }
-.icon:hover { border-color: var(--primary); color: var(--text); }
-.icon.danger { color: var(--danger); border-color: var(--danger); }
-.icon.danger:hover { color: var(--danger); border-color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+/* Icon base styles */
+.icon-base {
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.icon-base:hover {
+  transform: scale(1.1);
+}
+
+/* Update existing icon styles to work with React Icons */
+.icon {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.icon.danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.icon.danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+}
 
 /* Light mode specific adjustments for danger buttons */
 :root[data-theme="light"] .icon.danger {
@@ -80,6 +126,23 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter,
   color: #dc2626;
   border-color: #dc2626;
   background: rgba(220, 38, 38, 0.1);
+}
+
+/* Utility classes for icon spacing */
+.mr-1 {
+  margin-right: 4px;
+}
+
+.mr-2 {
+  margin-right: 8px;
+}
+
+/* Special styling for heart icon */
+.heart-icon {
+  color: #ef4444;
+  margin: 0 4px;
+  display: inline-flex;
+  vertical-align: middle;
 }
 
 .array-editor .array-item { border: 1px solid var(--border); border-radius: 8px; padding: 8px; margin-bottom: 12px; background: var(--card); }

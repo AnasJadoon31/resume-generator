@@ -1,4 +1,5 @@
 import React from 'react'
+import { Icon } from './IconRegistry.jsx'
 
 export function SectionEditor({ schema, value, onChange }) {
   if (!schema) return null
@@ -59,9 +60,15 @@ function ArrayEditor({ schema, value, onChange }) {
         {(value || []).map((item, i) => (
           <div className="array-item" key={i}>
             <div className="array-item-controls">
-              <button className="icon" title="Move up" onClick={() => move(i, -1)}>↑</button>
-              <button className="icon" title="Move down" onClick={() => move(i, +1)}>↓</button>
-              <button className="icon danger" title="Remove" onClick={() => remove(i)}>✕</button>
+              <button className="icon" title="Move up" onClick={() => move(i, -1)}>
+                <Icon name="ArrowUp" size={14} />
+              </button>
+              <button className="icon" title="Move down" onClick={() => move(i, +1)}>
+                <Icon name="ArrowDown" size={14} />
+              </button>
+              <button className="icon danger" title="Remove" onClick={() => remove(i)}>
+                <Icon name="Close" size={14} />
+              </button>
             </div>
             <div className="array-item-body">
               {schema.item && schema.item.type === 'object' && (
@@ -74,7 +81,10 @@ function ArrayEditor({ schema, value, onChange }) {
           </div>
         ))}
       </div>
-      <button className="btn" onClick={add}>Add {schema.addLabel || 'Item'}</button>
+      <button className="btn" onClick={add}>
+        <Icon name="Plus" size={14} className="mr-1" />
+        Add {schema.addLabel || 'Item'}
+      </button>
     </div>
   )
 }
@@ -96,10 +106,15 @@ function renderField(f, value, onChange) {
         {arr.map((v, i) => (
           <div key={i} className="row">
             <input className="input" value={v} onChange={e => set(i, e.target.value)} />
-            <button className="icon danger" onClick={() => remove(i)}>✕</button>
+            <button className="icon danger" onClick={() => remove(i)}>
+              <Icon name="Close" size={14} />
+            </button>
           </div>
         ))}
-        <button className="btn" onClick={add}>Add</button>
+        <button className="btn" onClick={add}>
+          <Icon name="Plus" size={14} className="mr-1" />
+          Add
+        </button>
       </div>
     )
   }

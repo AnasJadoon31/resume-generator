@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
+import { Icon } from './IconRegistry.jsx'
 
 export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal }) {
   const fileRef = useRef(null)
@@ -52,13 +53,23 @@ export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal
           onClick={toggleTheme} 
           title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
-          {theme === 'dark' ? '☀️' : '🌙'}
+          <Icon name={theme === 'dark' ? 'Sun' : 'Moon'} size={16} />
         </button>
-        <button className="btn" onClick={exportJson} title="Export JSON">Export</button>
+        <button className="btn" onClick={exportJson} title="Export JSON">
+          <Icon name="Download" size={16} className="mr-2" />
+          Export
+        </button>
         <input ref={fileRef} type="file" accept="application/json" hidden onChange={importJson} />
-        <button className="btn" onClick={() => fileRef.current?.click()} title="Import JSON">Import</button>
-        <button className="btn secondary" onClick={onReset} title="Reset data">Reset</button>
+        <button className="btn" onClick={() => fileRef.current?.click()} title="Import JSON">
+          <Icon name="Upload" size={16} className="mr-2" />
+          Import
+        </button>
+        <button className="btn secondary" onClick={onReset} title="Reset data">
+          <Icon name="Refresh" size={16} className="mr-2" />
+          Reset
+        </button>
         <button className="btn primary" disabled={busy} onClick={onGenerate} title="Generate PDF">
+          <Icon name="FileText" size={16} className="mr-2" />
           {busy ? 'Generating…' : 'Generate PDF'}
         </button>
       </div>

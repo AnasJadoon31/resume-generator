@@ -3,6 +3,7 @@ import { SectionEditor } from './components/SectionEditor.jsx'
 import { Toolbar } from './components/Toolbar.jsx'
 import { Modal } from './components/Modal.jsx'
 import { Footer } from './components/Footer.jsx'
+import { Icon } from './components/IconRegistry.jsx'
 import { defaultResume, sectionSchemas, validateResume, generateId } from './models/schema.js'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001'
@@ -278,7 +279,7 @@ export default function App() {
                           title="Edit section title" 
                           onClick={() => toggleTitleEdit(personalSection.key)}
                         >
-                          ✏️
+                          <Icon name="Edit" size={14} />
                         </button>
                         <h2>{personalSection.title}</h2>
                       </>
@@ -315,16 +316,22 @@ export default function App() {
                           title="Edit section title" 
                           onClick={() => toggleTitleEdit(section.key)}
                         >
-                          ✏️
+                          <Icon name="Edit" size={14} />
                         </button>
                         <h2>{section.title}</h2>
                       </>
                     )}
                   </div>
                   <div className="section-controls">
-                    <button className="icon" title="Move up" onClick={() => moveSectionUp(section.key)}>↑</button>
-                    <button className="icon" title="Move down" onClick={() => moveSectionDown(section.key)}>↓</button>
-                    <button className="icon danger" title="Remove section" onClick={() => removeSection(section.key)}>✕</button>
+                    <button className="icon" title="Move up" onClick={() => moveSectionUp(section.key)}>
+                      <Icon name="ArrowUp" size={14} />
+                    </button>
+                    <button className="icon" title="Move down" onClick={() => moveSectionDown(section.key)}>
+                      <Icon name="ArrowDown" size={14} />
+                    </button>
+                    <button className="icon danger" title="Remove section" onClick={() => removeSection(section.key)}>
+                      <Icon name="Close" size={14} />
+                    </button>
                   </div>
                 </header>
                 <div className="card-body">
