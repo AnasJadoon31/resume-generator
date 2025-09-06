@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { Icon } from './IconRegistry.jsx'
 
-export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal }) {
+export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal, onOpenSettings, onOpenPreview, validationErrors = [], showingPreview = false }) {
   const fileRef = useRef(null)
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'dark'
@@ -42,10 +42,19 @@ export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal
     e.target.value = ''
   }
 
+  const hasErrors = validationErrors.length > 0
+  const errorTooltip = hasErrors ? validationErrors.join('; ') : ''
+
   return (
     <div className="toolbar">
       <div className="toolbar-left">
         <h1>Resume Generator</h1>
+        {hasErrors && (
+          <div className="validation-indicator">
+            <Icon name="Alert" size={16} className="error-icon" />
+            <span className="error-count">{validationErrors.length} error{validationErrors.length > 1 ? 's' : ''}</span>
+          </div>
+        )}
       </div>
       <div className="toolbar-right">
         <button 
@@ -55,6 +64,23 @@ export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal
         >
           <Icon name={theme === 'dark' ? 'Sun' : 'Moon'} size={16} />
         </button>
+        <button 
+          className="btn" 
+          onClick={onOpenSettings} 
+          title="Settings"
+        >
+          <Icon name="Settings" size={16} />
+        </button>
+        {onOpenPreview && (
+          <button 
+            className="btn" 
+            onClick={onOpenPreview} 
+            title={showingPreview ? "Edit Resume" : "Preview Resume"}
+          >
+            <Icon name={showingPreview ? "Edit" : "Eye"} size={16} className="mr-2" />
+            {showingPreview ? "Edit" : "Preview"}
+          </button>
+        )}
         <button className="btn" onClick={exportJson} title="Export JSON">
           <Icon name="Download" size={16} className="mr-2" />
           Export
@@ -68,10 +94,17 @@ export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal
           <Icon name="Refresh" size={16} className="mr-2" />
           Reset
         </button>
-        <button className="btn primary" disabled={busy} onClick={onGenerate} title="Generate PDF">
-          <Icon name="FileText" size={16} className="mr-2" />
-          {busy ? 'Generating…' : 'Generate PDF'}
-        </button>
+        <div className="generate-button-container">
+          <button 
+            className={`btn primary ${hasErrors ? 'disabled' : ''}`}
+            disabled={busy || hasErrors} 
+            onClick={onGenerate} 
+            title={hasErrors ? errorTooltip : 'Generate PDF'}
+          >
+            <Icon name="FileText" size={16} className="mr-2" />
+            {busy ? 'Generating…' : 'Generate PDF'}
+          </button>
+        </div>
       </div>
     </div>
   )

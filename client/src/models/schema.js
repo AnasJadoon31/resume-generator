@@ -283,7 +283,93 @@ export const sectionSchemas = {
 
 export function validateResume(r) {
   const issues = []
-  if (!r.personal?.name) issues.push('Name is required')
+  
+  // Personal section validation (required fields)
+  if (!r.personal?.name?.trim()) issues.push('Name is required')
+  if (!r.personal?.email?.trim()) issues.push('Email is required')
+  if (!r.personal?.title?.trim()) issues.push('Title/Headline is required')
+  
+  // Email format validation
+  if (r.personal?.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.personal.email.trim())) {
+    issues.push('Invalid email format')
+  }
+  
+  // Experience validation (if visible and has items)
+  if (r.sectionConfig?.visibility?.experience && r.experience?.length > 0) {
+    r.experience.forEach((exp, index) => {
+      if (!exp.role?.trim()) issues.push(`Experience ${index + 1}: Role is required`)
+      if (!exp.company?.trim()) issues.push(`Experience ${index + 1}: Company is required`)
+    })
+  }
+  
+  // Education validation (if visible and has items)
+  if (r.sectionConfig?.visibility?.education && r.education?.length > 0) {
+    r.education.forEach((edu, index) => {
+      if (!edu.institution?.trim()) issues.push(`Education ${index + 1}: Institution is required`)
+      if (!edu.degree?.trim()) issues.push(`Education ${index + 1}: Degree is required`)
+    })
+  }
+  
+  // Skills validation (if visible)
+  if (r.sectionConfig?.visibility?.skills && r.skills?.categories?.length > 0) {
+    r.skills.categories.forEach((cat, index) => {
+      if (!cat.name?.trim()) issues.push(`Skills category ${index + 1}: Name is required`)
+      if (!cat.items?.length || cat.items.every(item => !item.trim())) {
+        issues.push(`Skills category ${index + 1}: At least one skill item is required`)
+      }
+    })
+  }
+  
+  // Certifications validation (if visible and has items)
+  if (r.sectionConfig?.visibility?.certifications && r.certifications?.length > 0) {
+    r.certifications.forEach((cert, index) => {
+      if (!cert.name?.trim()) issues.push(`Certification ${index + 1}: Name is required`)
+    })
+  }
+  
+  // Projects validation (if visible and has items)
+  if (r.sectionConfig?.visibility?.projects && r.projects?.length > 0) {
+    r.projects.forEach((proj, index) => {
+      if (!proj.name?.trim()) issues.push(`Project ${index + 1}: Name is required`)
+    })
+  }
+  
+  // Awards validation (if visible and has items)
+  if (r.sectionConfig?.visibility?.awards && r.awards?.length > 0) {
+    r.awards.forEach((award, index) => {
+      if (!award.name?.trim()) issues.push(`Award ${index + 1}: Name is required`)
+    })
+  }
+  
+  // Publications validation (if visible and has items)
+  if (r.sectionConfig?.visibility?.publications && r.publications?.length > 0) {
+    r.publications.forEach((pub, index) => {
+      if (!pub.title?.trim()) issues.push(`Publication ${index + 1}: Title is required`)
+    })
+  }
+  
+  // Languages validation (if visible and has items)
+  if (r.sectionConfig?.visibility?.languages && r.languages?.length > 0) {
+    r.languages.forEach((lang, index) => {
+      if (!lang.name?.trim()) issues.push(`Language ${index + 1}: Name is required`)
+      if (!lang.level?.trim()) issues.push(`Language ${index + 1}: Level is required`)
+    })
+  }
+  
+  // Custom sections validation (if visible and has items)
+  if (r.sectionConfig?.visibility?.customSections && r.customSections?.length > 0) {
+    r.customSections.forEach((section, sectionIndex) => {
+      if (!section.title?.trim()) issues.push(`Custom section ${sectionIndex + 1}: Title is required`)
+      if (section.items?.length > 0) {
+        section.items.forEach((item, itemIndex) => {
+          if (!item.heading?.trim()) {
+            issues.push(`Custom section ${sectionIndex + 1}, item ${itemIndex + 1}: Heading is required`)
+          }
+        })
+      }
+    })
+  }
+  
   return issues
 }
 

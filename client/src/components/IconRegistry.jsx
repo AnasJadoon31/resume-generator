@@ -14,6 +14,7 @@ import {
   FiUpload,
   FiRefreshCw,
   FiFileText,
+  FiSettings,
   // Contact icons
   FiMail,
   FiPhone,
@@ -42,6 +43,7 @@ export const Icons = {
   Plus: FiPlus,
   Eye: FiEye,
   EyeOff: FiEyeOff,
+  Settings: FiSettings,
   
   // Theme
   Sun: FiSun,
