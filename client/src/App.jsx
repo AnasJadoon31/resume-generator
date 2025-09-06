@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { SectionEditor } from './components/SectionEditor.jsx'
 import { Toolbar } from './components/Toolbar.jsx'
 import { Modal } from './components/Modal.jsx'
+import { Footer } from './components/Footer.jsx'
 import { defaultResume, sectionSchemas, validateResume, generateId } from './models/schema.js'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001'
@@ -245,131 +246,134 @@ export default function App() {
 
   return (
     <div className="app-root">
-      <Toolbar
-        busy={busy}
-        onGenerate={onGenerate}
-        onReset={onReset}
-        onImport={onImport}
-        onShowModal={showModal}
-        data={resume}
-      />
-      <div className="layout">
-        <div className="form-pane">
-          {personalSection && (
-            <section className="card" key={personalSection.key}>
-              <header className="card-header">
-                <div className="section-header">
-                  {editingTitles[personalSection.key] ? (
-                    <input 
-                      className="section-title-input"
-                      value={personalSection.title}
-                      onChange={e => updateSectionTitle(personalSection.key, e.target.value)}
-                      onBlur={() => handleTitleBlur(personalSection.key)}
-                      onKeyPress={e => handleTitleKeyPress(e, personalSection.key)}
-                      placeholder="Section Title"
-                      autoFocus
-                    />
-                  ) : (
-                    <>
+      <div className="main-content">
+        <Toolbar
+          busy={busy}
+          onGenerate={onGenerate}
+          onReset={onReset}
+          onImport={onImport}
+          onShowModal={showModal}
+          data={resume}
+        />
+        <div className="layout">
+          <div className="form-pane">
+            {personalSection && (
+              <section className="card" key={personalSection.key}>
+                <header className="card-header">
+                  <div className="section-header">
+                    {editingTitles[personalSection.key] ? (
+                      <input 
+                        className="section-title-input"
+                        value={personalSection.title}
+                        onChange={e => updateSectionTitle(personalSection.key, e.target.value)}
+                        onBlur={() => handleTitleBlur(personalSection.key)}
+                        onKeyPress={e => handleTitleKeyPress(e, personalSection.key)}
+                        placeholder="Section Title"
+                        autoFocus
+                      />
+                    ) : (
+                      <>
+                        <button 
+                          className="icon edit-title-btn" 
+                          title="Edit section title" 
+                          onClick={() => toggleTitleEdit(personalSection.key)}
+                        >
+                          ✏️
+                        </button>
+                        <h2>{personalSection.title}</h2>
+                      </>
+                    )}
+                  </div>
+                </header>
+                <div className="card-body">
+                  <SectionEditor
+                    schema={personalSection.schema}
+                    value={resume[personalSection.key]}
+                    onChange={val => setResume(prev => ({ ...prev, [personalSection.key]: val }))}
+                  />
+                </div>
+              </section>
+            )}
+            {otherVisibleSections.map(section => (
+              <section className="card" key={section.key}>
+                <header className="card-header">
+                  <div className="section-header">
+                    {editingTitles[section.key] ? (
+                      <input 
+                        className="section-title-input"
+                        value={section.title}
+                        onChange={e => updateSectionTitle(section.key, e.target.value)}
+                        onBlur={() => handleTitleBlur(section.key)}
+                        onKeyPress={e => handleTitleKeyPress(e, section.key)}
+                        placeholder="Section Title"
+                        autoFocus
+                      />
+                    ) : (
+                      <>
+                        <button 
+                          className="icon edit-title-btn" 
+                          title="Edit section title" 
+                          onClick={() => toggleTitleEdit(section.key)}
+                        >
+                          ✏️
+                        </button>
+                        <h2>{section.title}</h2>
+                      </>
+                    )}
+                  </div>
+                  <div className="section-controls">
+                    <button className="icon" title="Move up" onClick={() => moveSectionUp(section.key)}>↑</button>
+                    <button className="icon" title="Move down" onClick={() => moveSectionDown(section.key)}>↓</button>
+                    <button className="icon danger" title="Remove section" onClick={() => removeSection(section.key)}>✕</button>
+                  </div>
+                </header>
+                <div className="card-body">
+                  <SectionEditor
+                    schema={section.schema}
+                    value={resume[section.key]}
+                    onChange={val => setResume(prev => ({ ...prev, [section.key]: val }))}
+                  />
+                </div>
+              </section>
+            ))}
+            
+            {availableSections.length > 0 && (
+              <div className="card add-section-card">
+                <header className="card-header">
+                  <h2>Add Section</h2>
+                </header>
+                <div className="card-body">
+                  <div className="add-section-grid">
+                    {availableSections.map(section => (
                       <button 
-                        className="icon edit-title-btn" 
-                        title="Edit section title" 
-                        onClick={() => toggleTitleEdit(personalSection.key)}
+                        key={section.key}
+                        className="btn add-section-btn"
+                        onClick={() => addSection(section.key)}
                       >
-                        ✏️
+                        + {section.title}
                       </button>
-                      <h2>{personalSection.title}</h2>
-                    </>
-                  )}
+                    ))}
+                  </div>
                 </div>
-              </header>
-              <div className="card-body">
-                <SectionEditor
-                  schema={personalSection.schema}
-                  value={resume[personalSection.key]}
-                  onChange={val => setResume(prev => ({ ...prev, [personalSection.key]: val }))}
-                />
               </div>
-            </section>
-          )}
-          {otherVisibleSections.map(section => (
-            <section className="card" key={section.key}>
-              <header className="card-header">
-                <div className="section-header">
-                  {editingTitles[section.key] ? (
-                    <input 
-                      className="section-title-input"
-                      value={section.title}
-                      onChange={e => updateSectionTitle(section.key, e.target.value)}
-                      onBlur={() => handleTitleBlur(section.key)}
-                      onKeyPress={e => handleTitleKeyPress(e, section.key)}
-                      placeholder="Section Title"
-                      autoFocus
-                    />
-                  ) : (
-                    <>
-                      <button 
-                        className="icon edit-title-btn" 
-                        title="Edit section title" 
-                        onClick={() => toggleTitleEdit(section.key)}
-                      >
-                        ✏️
-                      </button>
-                      <h2>{section.title}</h2>
-                    </>
-                  )}
-                </div>
-                <div className="section-controls">
-                  <button className="icon" title="Move up" onClick={() => moveSectionUp(section.key)}>↑</button>
-                  <button className="icon" title="Move down" onClick={() => moveSectionDown(section.key)}>↓</button>
-                  <button className="icon danger" title="Remove section" onClick={() => removeSection(section.key)}>✕</button>
-                </div>
-              </header>
-              <div className="card-body">
-                <SectionEditor
-                  schema={section.schema}
-                  value={resume[section.key]}
-                  onChange={val => setResume(prev => ({ ...prev, [section.key]: val }))}
-                />
-              </div>
-            </section>
-          ))}
+            )}
+          </div>
           
-          {availableSections.length > 0 && (
-            <div className="card add-section-card">
-              <header className="card-header">
-                <h2>Add Section</h2>
-              </header>
-              <div className="card-body">
-                <div className="add-section-grid">
-                  {availableSections.map(section => (
-                    <button 
-                      key={section.key}
-                      className="btn add-section-btn"
-                      onClick={() => addSection(section.key)}
-                    >
-                      + {section.title}
-                    </button>
-                  ))}
-                </div>
+          <div className="preview-pane">
+            <div className="card">
+              <header className="card-header"><h2>Preview</h2></header>
+              <div className="card-body preview-body">
+                {error && <div className="alert error">{String(error)}</div>}
+                {!pdfUrl && <div className="placeholder">Generate to see PDF preview</div>}
+                {pdfUrl && (
+                  <iframe title="resume" src={pdfUrl} className="preview-frame" />
+                )}
               </div>
-            </div>
-          )}
-        </div>
-        
-        <div className="preview-pane">
-          <div className="card">
-            <header className="card-header"><h2>Preview</h2></header>
-            <div className="card-body preview-body">
-              {error && <div className="alert error">{String(error)}</div>}
-              {!pdfUrl && <div className="placeholder">Generate to see PDF preview</div>}
-              {pdfUrl && (
-                <iframe title="resume" src={pdfUrl} className="preview-frame" />
-              )}
             </div>
           </div>
         </div>
       </div>
+      <Footer />
       <Modal
         isOpen={modal.isOpen}
         type={modal.type}
