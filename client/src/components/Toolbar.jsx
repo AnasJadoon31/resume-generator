@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 
-export function Toolbar({ busy, onGenerate, onReset, onImport, data }) {
+export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal }) {
   const fileRef = useRef(null)
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'dark'
@@ -34,7 +34,7 @@ export function Toolbar({ busy, onGenerate, onReset, onImport, data }) {
         const obj = JSON.parse(reader.result)
         onImport(obj)
       } catch (e) {
-        alert('Invalid JSON file')
+        onShowModal('info', 'Import Error', 'Invalid JSON file. Please check the file format and try again.')
       }
     }
     reader.readAsText(file)

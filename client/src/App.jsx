@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { SectionEditor } from './components/SectionEditor.jsx'
 import { Toolbar } from './components/Toolbar.jsx'
+import { Modal } from './components/Modal.jsx'
 import { defaultResume, sectionSchemas, validateResume, generateId } from './models/schema.js'
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3001'
@@ -14,6 +15,7 @@ export default function App() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
   const [editingTitles, setEditingTitles] = useState({})
+  const [modal, setModal] = useState({ isOpen: false, type: 'info', title: '', message: '', onConfirm: null })
 
   // Ensure sectionConfig exists for backward compatibility
   useEffect(() => {
@@ -26,6 +28,21 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('resume-data-v1', JSON.stringify(resume))
   }, [resume])
+
+  const showModal = (type, title, message, onConfirm = null) => {
+    setModal({ isOpen: true, type, title, message, onConfirm })
+  }
+
+  const closeModal = () => {
+    setModal({ isOpen: false, type: 'info', title: '', message: '', onConfirm: null })
+  }
+
+  const handleModalConfirm = () => {
+    if (modal.onConfirm) {
+      modal.onConfirm()
+    }
+    closeModal()
+  }
 
   const onGenerate = async () => {
     setError(null)
@@ -57,11 +74,16 @@ export default function App() {
   }
 
   const onReset = () => {
-    if (confirm('Reset to template data?')) {
-      setResume(defaultResume())
-      setPdfUrl(null)
-      setError(null)
-    }
+    showModal(
+      'confirm',
+      'Reset Resume',
+      'Are you sure you want to reset to template data? This will remove all your current data.',
+      () => {
+        setResume(defaultResume())
+        setPdfUrl(null)
+        setError(null)
+      }
+    )
   }
 
   const onImport = (obj) => {
@@ -109,21 +131,26 @@ export default function App() {
 
   const removeSection = (sectionKey) => {
     if (sectionKey === 'personal') {
-      alert('Personal section cannot be removed')
+      showModal('info', 'Cannot Remove Section', 'Personal section cannot be removed as it contains essential information.')
       return
     }
-    if (confirm('Remove this section? This will hide it from your resume.')) {
-      setResume(prev => ({
-        ...prev,
-        sectionConfig: {
-          ...prev.sectionConfig,
-          visibility: {
-            ...prev.sectionConfig.visibility,
-            [sectionKey]: false
+    showModal(
+      'confirm',
+      'Remove Section',
+      'Are you sure you want to remove this section? This will hide it from your resume.',
+      () => {
+        setResume(prev => ({
+          ...prev,
+          sectionConfig: {
+            ...prev.sectionConfig,
+            visibility: {
+              ...prev.sectionConfig.visibility,
+              [sectionKey]: false
+            }
           }
-        }
-      }))
-    }
+        }))
+      }
+    )
   }
 
   const moveSectionUp = (sectionKey) => {
@@ -223,6 +250,7 @@ export default function App() {
         onGenerate={onGenerate}
         onReset={onReset}
         onImport={onImport}
+        onShowModal={showModal}
         data={resume}
       />
       <div className="layout">
@@ -342,6 +370,14 @@ export default function App() {
           </div>
         </div>
       </div>
+      <Modal
+        isOpen={modal.isOpen}
+        type={modal.type}
+        title={modal.title}
+        message={modal.message}
+        onClose={closeModal}
+        onConfirm={handleModalConfirm}
+      />
     </div>
   )
 }

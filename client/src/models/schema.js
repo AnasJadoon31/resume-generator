@@ -1,10 +1,10 @@
 export function defaultResume() {
   return {
     personal: {
-      name: 'Muhammad Anas',
-      title: 'AI Engineer',
-      email: 'anasjadoon31@gmail.com',
-      phone: '+92 3311118031',
+      name: 'Your Name',
+      title: 'Your Title',
+      email: 'your.email@example.com',
+      phone: '+92 3311234567',
       location: 'Karachi, Pakistan',
       linkedin: 'https://www.linkedin.com/in/anas-jadoon/',
       github: 'https://github.com/AnasJadoon31'
