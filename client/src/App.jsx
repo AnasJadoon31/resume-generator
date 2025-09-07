@@ -16,6 +16,7 @@ export default function App() {
   })
   const [pdfUrl, setPdfUrl] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [aiModifying, setAiModifying] = useState(false)
   const [error, setError] = useState(null)
   const [editingTitles, setEditingTitles] = useState({})
   const [modal, setModal] = useState({ isOpen: false, type: 'info', title: '', message: '', onConfirm: null })
@@ -148,6 +149,115 @@ export default function App() {
       setError(e.message)
     } finally {
       setBusy(false)
+    }
+  }
+
+  const onModifyWithAI = async () => {
+    setError(null)
+    const issues = validateResume(resume)
+    if (issues.length) {
+      setError('Please fix validation errors before using AI modification')
+      return
+    }
+    
+    if (!resume?.personal?.name?.trim()) {
+      showModal('info', 'Add Content First', 'Please add some basic resume content (at least your name) before using AI modification.')
+      return
+    }
+
+    // Show AI options modal instead of direct confirmation
+    showAIOptionsModal()
+  }
+
+  const showAIOptionsModal = () => {
+    setModal({
+      isOpen: true,
+      type: 'ai-options',
+      title: 'AI Resume Enhancement',
+      message: 'Choose how you want to enhance your resume:',
+      onConfirm: null
+    })
+  }
+
+  const handleGeneralAIImprovement = () => {
+    closeModal()
+    showModal(
+      'confirm',
+      'General AI Enhancement',
+      'This will use AI to improve your resume content with professional language, better formatting, and ATS optimization while keeping the same structure. Your current data will be replaced with AI-enhanced versions. Continue?',
+      () => processAIModification()
+    )
+  }
+
+  const handleJobSpecificAIImprovement = () => {
+    closeModal()
+    setModal({
+      isOpen: true,
+      type: 'job-input',
+      title: 'Job-Specific AI Enhancement',
+      message: 'Paste the job advertisement or job requirements below. The AI will tailor your resume to match this specific position:',
+      onConfirm: null
+    })
+  }
+
+  const processAIModification = async (jobDescription = '') => {
+    setAiModifying(true)
+    try {
+      const requestBody = {
+        ...resume,
+        jobDescription: jobDescription.trim()
+      }
+
+      const resp = await fetch(`${API_BASE}/api/modify-with-ai`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      })
+      
+      if (!resp.ok) {
+        const errorData = await resp.json().catch(() => ({ error: 'Unknown error' }))
+        throw new Error(errorData.error || `HTTP ${resp.status}`)
+      }
+      
+      const result = await resp.json()
+      setResume(result.data)
+      setPdfUrl(null) // Clear current PDF to force regeneration
+      
+      // Auto-generate PDF after AI enhancement, regardless of auto-generation setting
+      setTimeout(async () => {
+        try {
+          setBusy(true)
+          const pdfResp = await fetch(`${API_BASE}/api/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(result.data)
+          })
+          if (pdfResp.ok) {
+            const blob = await pdfResp.blob()
+            const url = URL.createObjectURL(blob)
+            if (pdfUrl) URL.revokeObjectURL(pdfUrl)
+            setPdfUrl(url)
+          }
+        } catch (pdfError) {
+          console.error('Auto PDF generation after AI failed:', pdfError)
+          // Don't show error for auto-generation failure after AI success
+        } finally {
+          setBusy(false)
+        }
+      }, 500) // Small delay to ensure state is updated
+      
+      const enhancementType = jobDescription ? 'job-specific' : 'general'
+      const message = jobDescription 
+        ? 'Your resume has been successfully tailored for the specific job position!'
+        : 'Your resume has been successfully enhanced with AI!'
+      
+      showModal('info', 'AI Enhancement Complete', result.message || message)
+    } catch (e) {
+      console.error('AI modification error:', e)
+      setError(e.message)
+      showModal('info', 'AI Enhancement Failed', `Failed to enhance resume: ${e.message}`)
+    } finally {
+      setAiModifying(false)
     }
   }
 
@@ -351,6 +461,8 @@ export default function App() {
           showingPreview={showingPreview}
           validationErrors={validationErrors}
           data={resume}
+          onModifyWithAI={onModifyWithAI}
+          aiModifying={aiModifying}
         />
         
         {settings.previewMode === 'side' ? (
@@ -473,7 +585,29 @@ export default function App() {
                 <header className="card-header"><h2>Preview</h2></header>
                 <div className="card-body preview-body">
                   {error && <div className="alert error">{String(error)}</div>}
-                  {!pdfUrl && <div className="placeholder">Generate to see PDF preview</div>}
+                  {!pdfUrl && (
+                    <div className="preview-placeholder">
+                      <div className="placeholder">Generate to see PDF preview</div>
+                      
+                      {/* AI Info Section */}
+                      <div className="ai-info-section">
+                        <div className="ai-info-header">
+                          <Icon name="Sparkles" size={20} />
+                          <h3 className="ai-info-title">AI-Powered Resume Enhancement</h3>
+                        </div>
+                        <p className="ai-info-description">
+                          Use "Modify with AI" after creating your raw resume content. Our AI will analyze and enhance your resume to make it more professional and impactful.
+                        </p>
+                        <ul className="ai-info-features">
+                          <li>Professional language optimization</li>
+                          <li>Achievement-oriented bullet points</li>
+                          <li>ATS-friendly keyword enhancement</li>
+                          <li>Compelling professional summaries</li>
+                          <li>Action verbs and power words</li>
+                        </ul>
+                      </div>
+                    </div>
+                  )}
                   {pdfUrl && (
                     <iframe title="resume" src={pdfUrl} className="preview-frame" />
                   )}
@@ -622,6 +756,9 @@ export default function App() {
         message={modal.message}
         onClose={closeModal}
         onConfirm={handleModalConfirm}
+        onGeneralAI={handleGeneralAIImprovement}
+        onJobSpecificAI={handleJobSpecificAIImprovement}
+        onJobSubmit={processAIModification}
       />
     </div>
   )

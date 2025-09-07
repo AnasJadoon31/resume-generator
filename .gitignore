@@ -9,3 +9,4 @@ dist/
 *.fdb_latexmk
 *.synctex.gz
 
+server/.env

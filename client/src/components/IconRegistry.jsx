@@ -26,7 +26,8 @@ import {
   FiHeart,
   FiCheck,
   FiAlertCircle,
-  FiInfo
+  FiInfo,
+  FiStar
 } from 'react-icons/fi'
 
 import {
@@ -57,6 +58,7 @@ export const Icons = {
   Check: FiCheck,
   Alert: FiAlertCircle,
   Info: FiInfo,
+  Sparkles: FiStar, // Using FiStar instead of HiSparkles for better compatibility
   
   // Contact
   Mail: FiMail,

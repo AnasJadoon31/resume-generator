@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { Icon } from './IconRegistry.jsx'
 
-export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal, onOpenSettings, onOpenPreview, validationErrors = [], showingPreview = false }) {
+export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal, onOpenSettings, onOpenPreview, validationErrors = [], showingPreview = false, onModifyWithAI, aiModifying = false }) {
   const fileRef = useRef(null)
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'dark'
@@ -94,6 +94,17 @@ export function Toolbar({ busy, onGenerate, onReset, onImport, data, onShowModal
           <Icon name="Refresh" size={16} className="mr-2" />
           Reset
         </button>
+        {onModifyWithAI && (
+          <button 
+            className={`btn ai-modify ${hasErrors ? 'disabled' : ''}`}
+            disabled={aiModifying || hasErrors || !data?.personal?.name} 
+            onClick={onModifyWithAI} 
+            title={hasErrors ? 'Fix validation errors first' : !data?.personal?.name ? 'Add basic resume content first' : 'Improve resume content with AI'}
+          >
+            <Icon name="Sparkles" size={16} className="mr-2" />
+            {aiModifying ? 'AI Working…' : 'Modify with AI'}
+          </button>
+        )}
         <div className="generate-button-container">
           <button 
             className={`btn primary ${hasErrors ? 'disabled' : ''}`}

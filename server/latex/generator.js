@@ -180,8 +180,22 @@ function generateExperienceSection(title, data) {
   const body = data.map(e => {
     const header = e.role ? `\\textbf{${escapeLatex(e.role)}}` : ''
     const company = e.company ? ` – ${escapeLatex(e.company)}` : ''
+    
+    // Add location and date range
+    const location = e.location ? `${escapeLatex(e.location)}` : ''
+    const dates = dateRange(e.startDate, e.endDate)
+    
+    // Create the right-aligned location and dates line
+    let locationDateLine = ''
+    if (location || dates) {
+      const locationText = location || ''
+      const dateText = dates || ''
+      const separator = (location && dates) ? ' | ' : ''
+      locationDateLine = ` \\hfill \\textit{${locationText}${separator}${dateText}}`
+    }
+    
     const bullets = listItems(e.bullets)
-    return `${header}${company}\n${bullets}`
+    return `${header}${company}${locationDateLine}\n${bullets}`
   }).join('\n\n')
   
   return `\\Needspace{10\\baselineskip}\n${title}\n\n${body}`
